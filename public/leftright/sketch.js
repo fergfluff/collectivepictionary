@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////
 // Open and connect leftright socket, keep track of users
 ////////////////////////////////////////////////////////////////////
-let leftrightsocket = io('/leftright');
+let socket = io('/leftright');
 
 // Listen for confirmation of connection
-leftrightsocket.on('connect', function () {
+socket.on('connect', function () {
   console.log("leftright user connected");
 });
 
@@ -18,16 +18,16 @@ let users = {};
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  // Listen for message from partners
-  leftrightsocket.on('message', function (message) {
+  // Listen for message from users
+  socket.on('message', function (message) {
     let id = message.id;
     let data = message.data;
-    //How does this syntax work??
+    //How does this syntax work???
     users[id] = {x: width * data.x, y: width * data.y};
   });
 
   // Remove disconnected users
-  leftrightsocket.on('disconnected', function (id) {
+  socket.on('disconnected', function (id) {
     delete users[id];
   });
 }
@@ -46,7 +46,7 @@ function draw() {
   for (let u in users) {
     let user = users[u];
     // If this user is me, make it red
-    if (u == leftrightsocket.id) fill('red');
+    if (u == socket.id) fill('red');
     // Otherwise, blue
     else fill('blue');
     ellipse(user.x, user.y, 50, 50);
@@ -56,8 +56,8 @@ function draw() {
   let x = mouseX / width;
   //Remove y data, right?
   //let y = mouseY / width;
-  //leftrightsocket doesn't have to emit their ID because the server just KNOWS
-  leftrightsocket.emit('data', {
+  //socket doesn't have to emit their ID because the server just KNOWS
+  socket.emit('data', {
     x: x,
     //y: y
   });
